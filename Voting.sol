@@ -69,7 +69,6 @@ contract Voting is Ownable(msg.sender){
         // Vérifier si il est pas déjà dans la whiteliste
 
         require(Voters[_address].isRegistered != true, "Deja whitelisted");
-        Voters[_address].isRegistered = true;
 
         // Creation Voter
 
@@ -192,7 +191,4 @@ contract Voting is Ownable(msg.sender){
         require(currentStatus == WorkflowStatus.VotesTallied);
         return proposalList[proposalwinnerid].description;
     }
-
-
-
 }
