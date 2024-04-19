@@ -8,7 +8,6 @@ contract Voting is Ownable(msg.sender){
 
     // définition des différents mappings, arrays
 
-    mapping(address => bool) private whitelist;
     mapping(address => Voter) private Voters;
     Proposal[] private proposalList;
 
@@ -48,11 +47,6 @@ contract Voting is Ownable(msg.sender){
 
     // Vérifier si l'adresse est whitelistée
 
-    modifier iswhitelisted(address _address){
-        require(whitelist[_address] == true, "Il est pas whitelisted le monsieur la");
-        _;
-    }
-
     modifier isVoter(){
         require(Voters[msg.sender].isRegistered == true, "t'es pas enregistre toi");
         _;
@@ -74,8 +68,8 @@ contract Voting is Ownable(msg.sender){
 
         // Vérifier si il est pas déjà dans la whiteliste
 
-        require(!whitelist[_address], "Deja whitelisted");
-        whitelist[_address] = true;
+        require(Voters[_address].isRegistered != true, "Deja whitelisted");
+        Voters[_address].isRegistered = true;
 
         // Creation Voter
 
@@ -88,7 +82,7 @@ contract Voting is Ownable(msg.sender){
 
         // Check si il est whitelisté
 
-        require(whitelist[msg.sender] == true, "Il est pas whitelisted le monsieur la");
+        require(Voters[msg.sender].isRegistered == true, "Il est pas whitelisted le monsieur la");
 
         // Check l'état
         require(currentStatus == WorkflowStatus.ProposalsRegistrationStarted);
@@ -198,4 +192,7 @@ contract Voting is Ownable(msg.sender){
         require(currentStatus == WorkflowStatus.VotesTallied);
         return proposalList[proposalwinnerid].description;
     }
+
+
+
 }
