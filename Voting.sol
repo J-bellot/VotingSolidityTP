@@ -53,6 +53,11 @@ contract Voting is Ownable(msg.sender){
         _;
     }
 
+    modifier isVoter(){
+        require(Voters[msg.sender].isRegistered == true, "t'es pas enregistre toi");
+        _;
+    }
+
     // Tous les events 
 
     event VoterRegistered(address voteAddress);
@@ -72,6 +77,9 @@ contract Voting is Ownable(msg.sender){
         require(!whitelist[_address], "Deja whitelisted");
         whitelist[_address] = true;
 
+        // Creation Voter
+
+        Voters[msg.sender] = Voter(true, false, 0);
     }
 
     // Enregistrer la proposition
@@ -120,13 +128,13 @@ contract Voting is Ownable(msg.sender){
 
     // Permet à tout le monde de récupérer les propositions
 
-    function getProposals() external view returns(Proposal[] memory) {
+    function getProposals() external isVoter view returns(Proposal[] memory) {
         return proposalList;
     }
 
     // Fonction du vote
 
-    function vote(uint _proposalId) external {
+    function vote(uint _proposalId) external isVoter {
 
         // Vérifier l'état
 
@@ -140,9 +148,10 @@ contract Voting is Ownable(msg.sender){
 
         require(Voters[msg.sender].isRegistered != true, "T'as deja vote");
 
-        // Création du voter
+        // Update du voter
 
-        Voters[msg.sender] = Voter(true, true, _proposalId);
+        Voters[msg.sender].hasVoted = true;
+        Voters[msg.sender].votedProposalId = _proposalId;
 
         proposalList[_proposalId].voteCount++;
 
@@ -182,14 +191,11 @@ contract Voting is Ownable(msg.sender){
 
     // Permet de récupérer la descriptino du gagnant
 
-    function getwinnerdescription() external view returns (string memory){
+    function getwinnerdescription() external isVoter view returns (string memory){
 
         // marche seulement si les votes ont été comptabilisés
 
         require(currentStatus == WorkflowStatus.VotesTallied);
         return proposalList[proposalwinnerid].description;
     }
-
-
-
 }
